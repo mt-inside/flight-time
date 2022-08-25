@@ -84,8 +84,8 @@ func (m model) View() string {
 		"\n" +
 		"\n" +
 		fmt.Sprintf(labelStyle("Elapsed %v  Remain %v"),
-			infoStyle(m.elapsed.String()),
-			remainStyle(m.remain.String()),
+			infoStyle(m.elapsed.Round(time.Second).String()),
+			remainStyle(m.remain.Round(time.Second).String()),
 		) +
 		"\n" +
 		"\n"
