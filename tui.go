@@ -14,20 +14,22 @@ const timeZoneFmt = "15:04 -0700 MST"
 const timeRelFmt = "15:04"
 
 type model struct {
-	flight  flight
-	elapsed time.Duration
-	remain  time.Duration
-	ratio   float64
-	relTime time.Time
+	flight       flight
+	elapsed      time.Duration
+	remain       time.Duration
+	wallclockEnd time.Time
+	ratio        float64
+	relTime      time.Time
 
 	progress progress.Model
 }
 
 type progressMsg struct {
-	elapsed time.Duration
-	remain  time.Duration
-	ratio   float64
-	relTime time.Time
+	elapsed      time.Duration
+	remain       time.Duration
+	wallclockEnd time.Time
+	ratio        float64
+	relTime      time.Time
 }
 
 func (m model) Init() tea.Cmd {
@@ -46,6 +48,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case progressMsg:
 		m.elapsed = msg.elapsed
 		m.remain = msg.remain
+		m.wallclockEnd = msg.wallclockEnd
 		m.ratio = msg.ratio
 		m.relTime = msg.relTime
 		return m, nil
@@ -62,10 +65,10 @@ var remainStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("15")).Bold(true
 
 func (m model) View() string {
 	return "\n" +
-		fmt.Sprintf("%v ✈️ %v    ⏱ %v",
+		fmt.Sprintf("%v ✈️ %v  (land at %s wall-clock)",
 			m.flight.start.Format(timeZoneFmt),
 			m.flight.end.Format(timeZoneFmt),
-			m.flight.duration,
+			remainStyle(m.wallclockEnd.Format(timeRelFmt)),
 		) +
 		"\n" +
 		fmt.Sprintf("(UTC 🛫%v 🕰%v 🛬%v)",
@@ -74,7 +77,8 @@ func (m model) View() string {
 			m.flight.end.In(time.UTC).Format(timeRelFmt),
 		) +
 		"\n" +
-		fmt.Sprintf(labelStyle("TZ diff %sh  Rel time %s"),
+		fmt.Sprintf(labelStyle(" ⏱ %v  TZ diff %sh  Rel time %s"),
+			m.flight.duration,
 			infoStyle(strconv.Itoa(m.flight.tzDiff/60/60)),
 			relTimeStyle(m.relTime.Format(timeRelFmt)),
 		) +

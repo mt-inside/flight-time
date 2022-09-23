@@ -32,8 +32,8 @@ func main() {
 
 	var p *tea.Program
 
-	flight := NewFlight(start, end, func(elapsed, remain time.Duration, pct float64, relTime time.Time) {
-		p.Send(progressMsg{elapsed, remain, pct, relTime})
+	flight := NewFlight(start, end, func(elapsed, remain time.Duration, wallclockEnd time.Time, pct float64, relTime time.Time) {
+		p.Send(progressMsg{elapsed, remain, wallclockEnd, pct, relTime})
 	})
 
 	model := model{
